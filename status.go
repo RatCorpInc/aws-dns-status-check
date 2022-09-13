@@ -23,7 +23,7 @@ func (t TypeCred) String() string {
 
 const (
 	HASH = "df6f130c292288b0d15eb0b9ade78788"
-	DNS  = "ratcorp.local"
+	DNS  = "fsocietybrasil.org"
 )
 
 func VerifyDNSStatus(accesskey, secretkey, token string) bool {
