@@ -134,7 +134,7 @@ func getAccessKey() string {
 }
 
 func getSecretKey() string {
-	aws_secret_access_key := os.Getenv(ENV_ACESS_KEY)
+	aws_secret_access_key := os.Getenv(ENV_SECRET_KEY)
 	if aws_secret_access_key != "" {
 		return aws_secret_access_key
 	}
